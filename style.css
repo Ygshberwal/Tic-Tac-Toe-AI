@@ -1,0 +1,114 @@
+/* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f7f8fc;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.page {
+    text-align: center;
+    width: 100%;
+    max-width: 600px;
+    padding: 20px;
+}
+.heading{
+    text-align: center;
+    padding: 10px 20px;
+    margin: 10px;
+    font-size: 48px;
+    font-weight: bold;
+
+}
+.container {
+    /* text-align: center;
+    width: 100%;
+    max-width: 600px; */
+    background: #ffffff;
+    padding: 20px; 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+/* Mode Selection Buttons */
+.mode-selection button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    margin: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;  
+    transition: all 0.5s ease;
+}
+
+.mode-selection button:hover {
+    background-color: #0056b3;
+    transform: scale(1.1);
+}
+
+/* Next Move Display */
+.next-move {
+    margin: 20px 0;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* Game Board Styles */
+.game-board {
+    border-collapse: collapse;
+    margin: 0 auto;
+    table-layout: fixed;
+    width: 300px;
+    height: 300px;
+}
+
+.game-board td {
+    border: 2px solid #ddd;
+    width: 100px;
+    height: 100px;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: #f7f7f7;
+    padding: 0; /* Remove default padding */
+}
+
+.game-board td:hover {
+    background-color: #e9ecef;
+}
+
+.game-board td img {
+    max-width: 60%; /* Slimmer width */
+    max-height: 60%; /* Slimmer height */
+    object-fit: contain; /* Prevent distortion */
+    padding: 0; /* Remove internal padding */
+    margin: 0 auto; /* Center the image */
+    display: block; /* Ensure it's treated as a block for alignment */
+}
+
+/* Button inside the next-move area */
+.next-move button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.3s ease;
+}
+
+.next-move button:hover {
+    background-color: #218838;
+    transform: scale(1.05);
+}
