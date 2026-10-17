@@ -8,7 +8,7 @@ let alternateStarter = false;
 let humanName = "";
 
 // Improved mapping functions
-const i2c = (i) => (i === X ? "X" : i === O ? "O" : "B");
+const i2c = (i) => (i === X ? "X" : i === O ? "O" : "b");
 const p2c = (i) => (i === X ? person1 : i === O ? person2 : "");
 
 function resetBoard(nextRound = false) {
@@ -32,16 +32,23 @@ function updatePage() {
         ? `You: ${i2c(-aiPlayer)} | AI: ${i2c(aiPlayer)}${alternateStarter ? " | Alternating starters" : ""}`
         : `X: ${person1} | O: ${person2}`;
     const e = document.getElementById("next");
+    const status = document.createElement("h3");
     if (gState === 0) {
-        e.innerHTML = `<h3>Next Move: ${p2c(next)} (${i2c(next)})</h3>`;
+        status.textContent = `Next Move: ${p2c(next)} (${i2c(next)})`;
     } else if (gState === 1) {
-        e.innerHTML = `<h3>${person1} wins!</h3>`;
+        status.textContent = `${person1} wins!`;
     } else if (gState === -1) {
-        e.innerHTML = `<h3>${person2} wins!</h3>`;
+        status.textContent = `${person2} wins!`;
     } else {
-        e.innerHTML = `<h3>It's a draw!</h3>`;
+        status.textContent = "It's a draw!";
     }
-    e.innerHTML += gState !== 0 ? `<button onclick='resetBoard(true)'>Play Again</button>` : "";
+    e.replaceChildren(status);
+    if (gState !== 0) {
+        const playAgain = document.createElement("button");
+        playAgain.textContent = "Play Again";
+        playAgain.onclick = () => resetBoard(true);
+        e.appendChild(playAgain);
+    }
 
     board.forEach((val, i) => {
         const cell = document.getElementById("td" + i);
