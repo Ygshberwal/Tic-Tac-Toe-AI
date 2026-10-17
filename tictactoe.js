@@ -34,6 +34,8 @@ function resetBoard(nextRound = false) {
         updateGameState();
     }
     updatePage();
+    const firstEmpty = board.indexOf(EMPTY);
+    if (firstEmpty !== -1) document.getElementById("td" + firstEmpty).firstElementChild.focus();
 }
 
 function updatePage() {
@@ -80,9 +82,39 @@ function updatePage() {
     board.forEach((val, i) => {
         const cell = document.getElementById("td" + i);
         cell.classList.toggle("winning-cell", winningCells.has(i));
-        cell.innerHTML = `<img src='${i2c(val)}.png' />`;
-        cell.onclick = () => updateEntry(i);
+        let button = cell.firstElementChild;
+        if (!button) {
+            button = document.createElement("button");
+            button.type = "button";
+            button.className = "cell-button";
+            const image = document.createElement("img");
+            image.alt = "";
+            button.appendChild(image);
+            button.onclick = () => updateEntry(i);
+            button.onkeydown = event => navigateBoard(event, i);
+            cell.appendChild(button);
+        }
+        button.firstElementChild.src = `${i2c(val)}.png`;
+        button.setAttribute("aria-label", `Row ${Math.floor(i / 3) + 1}, column ${i % 3 + 1}: ${val === EMPTY ? "empty" : i2c(val)}${winningCells.has(i) ? ", winning cell" : ""}`);
+        button.setAttribute("aria-disabled", String(gState !== 0 || val !== EMPTY));
     });
+}
+
+function navigateBoard(event, i) {
+    const row = Math.floor(i / 3);
+    const column = i % 3;
+    let target;
+    switch (event.key) {
+        case "ArrowUp": target = Math.max(0, row - 1) * 3 + column; break;
+        case "ArrowDown": target = Math.min(2, row + 1) * 3 + column; break;
+        case "ArrowLeft": target = row * 3 + Math.max(0, column - 1); break;
+        case "ArrowRight": target = row * 3 + Math.min(2, column + 1); break;
+        case "Home": target = row * 3; break;
+        case "End": target = row * 3 + 2; break;
+        default: return;
+    }
+    event.preventDefault();
+    document.getElementById("td" + target).firstElementChild.focus();
 }
 
 function checkState() {
@@ -152,8 +184,8 @@ function startGame(event) {
     }
     scores = { first: 0, second: 0, draws: 0 };
     cancelSetup();
-    resetBoard();
     document.getElementById("game-area").hidden = false;
+    resetBoard();
 }
 
 function cancelSetup() {

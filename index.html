@@ -34,8 +34,9 @@
         <div id="game-area" hidden>
         <div id="player-info" aria-live="polite"></div>
         <div id="scoreboard" class="scoreboard" role="status" aria-label="Match scores"></div>
-        <div id="next" class="next-move"></div>
-        <table class="game-board">
+        <p id="board-help">Use arrow keys to move between cells and Enter or Space to play.</p>
+        <div id="next" class="next-move" role="status" aria-atomic="true"></div>
+        <table class="game-board" aria-label="Tic-Tac-Toe board" aria-describedby="board-help">
             <tr>
                 <td id="td0"></td>
                 <td id="td1"></td>
