@@ -53,7 +53,7 @@
 
 function bestMove() {
     let bestScore = -Infinity;
-    let move = -1;
+    let bestMoves = [];
 
     for (let i = 0; i < 9; i++) {
         if (board[i] === EMPTY) {
@@ -62,10 +62,14 @@ function bestMove() {
             board[i] = EMPTY;
             if (score > bestScore) {
                 bestScore = score;
-                move = i;
+                bestMoves = [i];
+            } else if (score === bestScore) {
+                bestMoves.push(i);
             }
         }
     }
+    if (bestMoves.length === 0) return;
+    const move = bestMoves[Math.floor(Math.random() * bestMoves.length)];
     board[move] = X;
     next = O;
 }
