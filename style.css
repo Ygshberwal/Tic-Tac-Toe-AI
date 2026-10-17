@@ -54,6 +54,30 @@ body {
 }
 
 /* Next Move Display */
+.scoreboard {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin: 20px 0;
+}
+
+.scoreboard > div {
+    padding: 12px 8px;
+    border-radius: 8px;
+    background: #f7f8fc;
+    overflow-wrap: anywhere;
+}
+
+.scoreboard span,
+.scoreboard strong {
+    display: block;
+}
+
+.scoreboard strong {
+    margin-top: 6px;
+    font-size: 28px;
+}
+
 .game-setup {
     max-width: 360px;
     margin: 20px auto;

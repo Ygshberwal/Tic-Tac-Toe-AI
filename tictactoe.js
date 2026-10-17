@@ -12,6 +12,8 @@ let aiPlayer = X;
 let alternateStarter = false;
 let humanName = "";
 let setupSinglePlayer = true;
+let scores = { first: 0, second: 0, draws: 0 };
+let roundCounted = false;
 
 // Improved mapping functions
 const i2c = (i) => (i === X ? "X" : i === O ? "O" : "b");
@@ -26,14 +28,28 @@ function resetBoard(nextRound = false) {
     board.fill(EMPTY);
     next = X;
     gState = 0;
+    roundCounted = false;
     if (isSinglePlayer && next === aiPlayer) {
         bestMove(); // AI makes the first move
-        gState = checkState();
+        updateGameState();
     }
     updatePage();
 }
 
 function updatePage() {
+    const scoreboard = document.getElementById("scoreboard");
+    const labels = isSinglePlayer ? [`${humanName} (You)`, "AI", "Draws"] : [`${person1} (X)`, `${person2} (O)`, "Draws"];
+    scoreboard.replaceChildren();
+    [scores.first, scores.second, scores.draws].forEach((score, i) => {
+        const item = document.createElement("div");
+        const label = document.createElement("span");
+        label.textContent = labels[i];
+        const value = document.createElement("strong");
+        value.textContent = String(score);
+        item.appendChild(label);
+        item.appendChild(value);
+        scoreboard.appendChild(item);
+    });
     document.getElementById("player-info").textContent = isSinglePlayer
         ? `You: ${i2c(-aiPlayer)} | AI: ${i2c(aiPlayer)}${alternateStarter ? " | Alternating starters" : ""}`
         : `X: ${person1} | O: ${person2}`;
@@ -78,16 +94,29 @@ function checkState() {
     return board.includes(EMPTY) ? 0 : 2;
 }
 
+function updateGameState() {
+    gState = checkState();
+    if (gState === 0 || roundCounted) return;
+    if (gState === 2) {
+        scores.draws++;
+    } else if (isSinglePlayer ? gState === -aiPlayer : gState === X) {
+        scores.first++;
+    } else {
+        scores.second++;
+    }
+    roundCounted = true;
+}
+
 function updateEntry(i) {
     if (!document.getElementById("game-setup").hidden || document.getElementById("game-area").hidden) return;
     if (gState === 0 && board[i] === EMPTY) {
         board[i] = next;
         next = -next;
-        gState = checkState();
+        updateGameState();
         updatePage();
         if (isSinglePlayer && gState === 0 && next === aiPlayer) {
             bestMove(); // AI makes its move
-            gState = checkState();
+            updateGameState();
             updatePage();
         }
     }
@@ -121,6 +150,7 @@ function startGame(event) {
         person1 = firstName || "Player X";
         person2 = document.getElementById("second-player-name").value.trim() || "Player O";
     }
+    scores = { first: 0, second: 0, draws: 0 };
     cancelSetup();
     resetBoard();
     document.getElementById("game-area").hidden = false;
