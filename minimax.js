@@ -57,7 +57,7 @@ function bestMove() {
 
     for (let i = 0; i < 9; i++) {
         if (board[i] === EMPTY) {
-            board[i] = X;
+            board[i] = aiPlayer;
             let score = minimax(board, 0, false);
             board[i] = EMPTY;
             if (score > bestScore) {
@@ -70,21 +70,21 @@ function bestMove() {
     }
     if (bestMoves.length === 0) return;
     const move = bestMoves[Math.floor(Math.random() * bestMoves.length)];
-    board[move] = X;
-    next = O;
+    board[move] = aiPlayer;
+    next = -aiPlayer;
 }
 
 function minimax(board, depth, isMaximizing) {
     let result = checkState();
-    if (result === 1) return 10 - depth; // AI wins
-    if (result === -1) return depth - 10; // Opponent wins
+    if (result === aiPlayer) return 10 - depth; // AI wins
+    if (result === -aiPlayer) return depth - 10; // Opponent wins
     if (result === 2) return 0; // Draw
 
     if (isMaximizing) {
         let bestScore = -Infinity;
         for (let i = 0; i < 9; i++) {
             if (board[i] === EMPTY) {
-                board[i] = X;
+                board[i] = aiPlayer;
                 let score = minimax(board, depth + 1, false);
                 board[i] = EMPTY;
                 bestScore = Math.max(score, bestScore);
@@ -95,7 +95,7 @@ function minimax(board, depth, isMaximizing) {
         let bestScore = Infinity;
         for (let i = 0; i < 9; i++) {
             if (board[i] === EMPTY) {
-                board[i] = O;
+                board[i] = -aiPlayer;
                 let score = minimax(board, depth + 1, true);
                 board[i] = EMPTY;
                 bestScore = Math.min(score, bestScore);

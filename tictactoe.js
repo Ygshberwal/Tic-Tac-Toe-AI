@@ -3,16 +3,24 @@ let board = Array(9).fill(EMPTY);
 let next = X;
 let gState = 0;
 let isSinglePlayer = false;
+let aiPlayer = X;
+let alternateStarter = false;
+let humanName = "";
 
 // Improved mapping functions
 const i2c = (i) => (i === X ? "X" : i === O ? "O" : "B");
 const p2c = (i) => (i === X ? person1 : i === O ? person2 : "");
 
-function resetBoard() {
+function resetBoard(nextRound = false) {
+    if (isSinglePlayer) {
+        if (alternateStarter && nextRound) aiPlayer = -aiPlayer;
+        person1 = aiPlayer === X ? "AI Player X" : humanName;
+        person2 = aiPlayer === O ? "AI Player O" : humanName;
+    }
     board.fill(EMPTY);
     next = X;
     gState = 0;
-    if (isSinglePlayer && next === X) {
+    if (isSinglePlayer && next === aiPlayer) {
         bestMove(); // AI makes the first move
         gState = checkState();
     }
@@ -20,6 +28,9 @@ function resetBoard() {
 }
 
 function updatePage() {
+    document.getElementById("player-info").textContent = isSinglePlayer
+        ? `You: ${i2c(-aiPlayer)} | AI: ${i2c(aiPlayer)}${alternateStarter ? " | Alternating starters" : ""}`
+        : `X: ${person1} | O: ${person2}`;
     const e = document.getElementById("next");
     if (gState === 0) {
         e.innerHTML = `<h3>Next Move: ${p2c(next)} (${i2c(next)})</h3>`;
@@ -30,7 +41,7 @@ function updatePage() {
     } else {
         e.innerHTML = `<h3>It's a draw!</h3>`;
     }
-    e.innerHTML += gState !== 0 ? `<button onclick='resetBoard()'>Play Again</button>` : "";
+    e.innerHTML += gState !== 0 ? `<button onclick='resetBoard(true)'>Play Again</button>` : "";
 
     board.forEach((val, i) => {
         const cell = document.getElementById("td" + i);
@@ -59,7 +70,7 @@ function updateEntry(i) {
         next = -next;
         gState = checkState();
         updatePage();
-        if (isSinglePlayer && gState === 0 && next === X) {
+        if (isSinglePlayer && gState === 0 && next === aiPlayer) {
             bestMove(); // AI makes its move
             gState = checkState();
             updatePage();
@@ -68,15 +79,27 @@ function updateEntry(i) {
 }
 
 // Mode selection logic with buttons
-function selectMode(singlePlayer) {
+function selectMode(singlePlayer, humanFirst) {
+    if (singlePlayer && humanFirst === undefined) {
+        document.getElementById("mode-selection").innerHTML = `
+            <h3>Who plays first?</h3>
+            <button onclick="selectMode(true, true)">You first (X)</button>
+            <button onclick="selectMode(true, false)">AI first (X)</button>
+            <button onclick="selectMode(true, 'alternate')">Alternate (you start)</button>
+            <button onclick="displayModeSelection()">Back</button>
+        `;
+        return;
+    }
     isSinglePlayer = singlePlayer;
+    alternateStarter = singlePlayer && humanFirst === "alternate";
     if (singlePlayer) {
-        person1 = "AI Player X";
-        person2 = prompt("Enter name for O: ") || "Player O";
+        aiPlayer = humanFirst ? O : X;
+        humanName = prompt(`Enter name for ${i2c(-aiPlayer)}: `) || `Player ${i2c(-aiPlayer)}`;
     } else {
         person1 = prompt("Enter name for X: ") || "Player X";
         person2 = prompt("Enter name for O: ") || "Player O";
     }
+    displayModeSelection();
     resetBoard();
 }
 
@@ -92,4 +115,3 @@ function displayModeSelection() {
 // Initialize game
 let person1, person2;
 displayModeSelection();
-
