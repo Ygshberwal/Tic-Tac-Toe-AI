@@ -54,6 +54,34 @@ body {
 }
 
 /* Next Move Display */
+.game-setup {
+    max-width: 360px;
+    margin: 20px auto;
+    text-align: left;
+}
+
+.game-setup label {
+    display: block;
+    margin: 16px 0 6px;
+    font-weight: bold;
+}
+
+.game-setup input,
+.game-setup select {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    font: inherit;
+}
+
+.game-setup input:focus-visible,
+.game-setup select:focus-visible {
+    outline: 3px solid #007bff;
+    outline-offset: 2px;
+}
+
 .next-move {
     margin: 20px 0;
     font-size: 24px;

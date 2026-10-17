@@ -11,6 +11,7 @@ let isSinglePlayer = false;
 let aiPlayer = X;
 let alternateStarter = false;
 let humanName = "";
+let setupSinglePlayer = true;
 
 // Improved mapping functions
 const i2c = (i) => (i === X ? "X" : i === O ? "O" : "b");
@@ -78,6 +79,7 @@ function checkState() {
 }
 
 function updateEntry(i) {
+    if (!document.getElementById("game-setup").hidden || document.getElementById("game-area").hidden) return;
     if (gState === 0 && board[i] === EMPTY) {
         board[i] = next;
         next = -next;
@@ -92,28 +94,42 @@ function updateEntry(i) {
 }
 
 // Mode selection logic with buttons
-function selectMode(singlePlayer, humanFirst) {
-    if (singlePlayer && humanFirst === undefined) {
-        document.getElementById("mode-selection").innerHTML = `
-            <h3>Who plays first?</h3>
-            <button onclick="selectMode(true, true)">You first (X)</button>
-            <button onclick="selectMode(true, false)">AI first (X)</button>
-            <button onclick="selectMode(true, 'alternate')">Alternate (you start)</button>
-            <button onclick="displayModeSelection()">Back</button>
-        `;
-        return;
-    }
-    isSinglePlayer = singlePlayer;
-    alternateStarter = singlePlayer && humanFirst === "alternate";
-    if (singlePlayer) {
-        aiPlayer = humanFirst ? O : X;
-        humanName = prompt(`Enter name for ${i2c(-aiPlayer)}: `) || `Player ${i2c(-aiPlayer)}`;
+function selectMode(singlePlayer) {
+    setupSinglePlayer = singlePlayer;
+    document.getElementById("setup-title").textContent = singlePlayer ? "Single-player setup" : "Multiplayer setup";
+    document.getElementById("player-name-label").textContent = singlePlayer ? "Your name" : "Player X name";
+    document.getElementById("player-name").value = singlePlayer ? humanName : (!isSinglePlayer ? person1 || "" : "");
+    document.getElementById("second-player-name").value = !isSinglePlayer ? person2 || "" : "";
+    document.getElementById("second-player-field").hidden = singlePlayer;
+    document.getElementById("starter-field").hidden = !singlePlayer;
+    document.getElementById("mode-selection").hidden = true;
+    document.getElementById("game-setup").hidden = false;
+    document.getElementById("game-area").hidden = true;
+    document.getElementById("player-name").focus();
+}
+
+function startGame(event) {
+    event.preventDefault();
+    isSinglePlayer = setupSinglePlayer;
+    const starter = document.getElementById("starter").value;
+    const firstName = document.getElementById("player-name").value.trim();
+    alternateStarter = isSinglePlayer && starter === "alternate";
+    if (isSinglePlayer) {
+        aiPlayer = starter === "ai" ? X : O;
+        humanName = firstName || "Player";
     } else {
-        person1 = prompt("Enter name for X: ") || "Player X";
-        person2 = prompt("Enter name for O: ") || "Player O";
+        person1 = firstName || "Player X";
+        person2 = document.getElementById("second-player-name").value.trim() || "Player O";
     }
-    displayModeSelection();
+    cancelSetup();
     resetBoard();
+    document.getElementById("game-area").hidden = false;
+}
+
+function cancelSetup() {
+    document.getElementById("game-setup").hidden = true;
+    document.getElementById("mode-selection").hidden = false;
+    document.getElementById("game-area").hidden = person1 === undefined;
 }
 
 // Display mode selection buttons
@@ -127,4 +143,5 @@ function displayModeSelection() {
 
 // Initialize game
 let person1, person2;
+document.getElementById("game-setup").onsubmit = startGame;
 displayModeSelection();
