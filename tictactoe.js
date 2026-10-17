@@ -1,4 +1,9 @@
 const EMPTY = 0, X = 1, O = -1;
+const WIN_PATTERNS = [
+    [0, 1, 2], [3, 4, 5], [6, 7, 8],
+    [0, 3, 6], [1, 4, 7], [2, 5, 8],
+    [0, 4, 8], [2, 4, 6],
+];
 let board = Array(9).fill(EMPTY);
 let next = X;
 let gState = 0;
@@ -50,20 +55,21 @@ function updatePage() {
         e.appendChild(playAgain);
     }
 
+    const winningCells = new Set(
+        gState === X || gState === O
+            ? WIN_PATTERNS.filter(pattern => pattern.every(i => board[i] === gState)).flat()
+            : []
+    );
     board.forEach((val, i) => {
         const cell = document.getElementById("td" + i);
+        cell.classList.toggle("winning-cell", winningCells.has(i));
         cell.innerHTML = `<img src='${i2c(val)}.png' />`;
         cell.onclick = () => updateEntry(i);
     });
 }
 
 function checkState() {
-    const winPatterns = [
-        [0, 1, 2], [3, 4, 5], [6, 7, 8],
-        [0, 3, 6], [1, 4, 7], [2, 5, 8],
-        [0, 4, 8], [2, 4, 6],
-    ];
-    for (const pattern of winPatterns) {
+    for (const pattern of WIN_PATTERNS) {
         const sum = pattern.reduce((acc, idx) => acc + board[idx], 0);
         if (sum === 3 * X) return 1;
         if (sum === 3 * O) return -1;
