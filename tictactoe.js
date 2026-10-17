@@ -14,6 +14,9 @@ let humanName = "";
 let setupSinglePlayer = true;
 let scores = { first: 0, second: 0, draws: 0 };
 let roundCounted = false;
+let player1Name = "";
+let player2Name = "";
+let player1Symbol = X;
 
 // Improved mapping functions
 const i2c = (i) => (i === X ? "X" : i === O ? "O" : "b");
@@ -24,6 +27,10 @@ function resetBoard(nextRound = false) {
         if (alternateStarter && nextRound) aiPlayer = -aiPlayer;
         person1 = aiPlayer === X ? "AI Player X" : humanName;
         person2 = aiPlayer === O ? "AI Player O" : humanName;
+    } else {
+        if (alternateStarter && nextRound) player1Symbol = -player1Symbol;
+        person1 = player1Symbol === X ? player1Name : player2Name;
+        person2 = player1Symbol === O ? player1Name : player2Name;
     }
     board.fill(EMPTY);
     next = X;
@@ -40,7 +47,7 @@ function resetBoard(nextRound = false) {
 
 function updatePage() {
     const scoreboard = document.getElementById("scoreboard");
-    const labels = isSinglePlayer ? [`${humanName} (You)`, "AI", "Draws"] : [`${person1} (X)`, `${person2} (O)`, "Draws"];
+    const labels = isSinglePlayer ? [`${humanName} (You)`, "AI", "Draws"] : [`${player1Name} (Player 1)`, `${player2Name} (Player 2)`, "Draws"];
     scoreboard.replaceChildren();
     [scores.first, scores.second, scores.draws].forEach((score, i) => {
         const item = document.createElement("div");
@@ -54,7 +61,7 @@ function updatePage() {
     });
     document.getElementById("player-info").textContent = isSinglePlayer
         ? `You: ${i2c(-aiPlayer)} | AI: ${i2c(aiPlayer)}${alternateStarter ? " | Alternating starters" : ""}`
-        : `X: ${person1} | O: ${person2}`;
+        : `Player 1 (${player1Name}): ${i2c(player1Symbol)} | Player 2 (${player2Name}): ${i2c(-player1Symbol)}${alternateStarter ? " | Alternating starters" : ""}`;
     const e = document.getElementById("next");
     const status = document.createElement("h3");
     if (gState === 0) {
@@ -131,7 +138,7 @@ function updateGameState() {
     if (gState === 0 || roundCounted) return;
     if (gState === 2) {
         scores.draws++;
-    } else if (isSinglePlayer ? gState === -aiPlayer : gState === X) {
+    } else if (isSinglePlayer ? gState === -aiPlayer : gState === player1Symbol) {
         scores.first++;
     } else {
         scores.second++;
@@ -158,11 +165,22 @@ function updateEntry(i) {
 function selectMode(singlePlayer) {
     setupSinglePlayer = singlePlayer;
     document.getElementById("setup-title").textContent = singlePlayer ? "Single-player setup" : "Multiplayer setup";
-    document.getElementById("player-name-label").textContent = singlePlayer ? "Your name" : "Player X name";
-    document.getElementById("player-name").value = singlePlayer ? humanName : (!isSinglePlayer ? person1 || "" : "");
-    document.getElementById("second-player-name").value = !isSinglePlayer ? person2 || "" : "";
+    document.getElementById("player-name-label").textContent = singlePlayer ? "Your name" : "Player 1 name";
+    document.getElementById("player-name").value = singlePlayer ? humanName : player1Name;
+    document.getElementById("second-player-name").value = player2Name;
     document.getElementById("second-player-field").hidden = singlePlayer;
-    document.getElementById("starter-field").hidden = !singlePlayer;
+    const starter = document.getElementById("starter");
+    const choices = singlePlayer
+        ? [["human", "You first (X)"], ["ai", "AI first (X)"], ["alternate", "Alternate (you start)"]]
+        : [["first", "Player 1 first (X)"], ["second", "Player 2 first (X)"], ["alternate", "Alternate (Player 1 starts)"]];
+    starter.replaceChildren();
+    choices.forEach(([value, text]) => {
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = text;
+        starter.appendChild(option);
+    });
+    starter.value = choices[0][0];
     document.getElementById("mode-selection").hidden = true;
     document.getElementById("game-setup").hidden = false;
     document.getElementById("game-area").hidden = true;
@@ -174,13 +192,14 @@ function startGame(event) {
     isSinglePlayer = setupSinglePlayer;
     const starter = document.getElementById("starter").value;
     const firstName = document.getElementById("player-name").value.trim();
-    alternateStarter = isSinglePlayer && starter === "alternate";
+    alternateStarter = starter === "alternate";
     if (isSinglePlayer) {
         aiPlayer = starter === "ai" ? X : O;
         humanName = firstName || "Player";
     } else {
-        person1 = firstName || "Player X";
-        person2 = document.getElementById("second-player-name").value.trim() || "Player O";
+        player1Name = firstName || "Player 1";
+        player2Name = document.getElementById("second-player-name").value.trim() || "Player 2";
+        player1Symbol = starter === "second" ? O : X;
     }
     scores = { first: 0, second: 0, draws: 0 };
     cancelSetup();
